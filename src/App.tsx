@@ -1,34 +1,59 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+import { useEffect, useState } from 'react'
 import './App.css'
 
+import IconIncomplete from './assets/icons/incomplete.png'
+import IconPending from './assets/icons/pending.png'
+import IconComplete from './assets/icons/complete.png'
+
+const STEPS: string[] = [
+  "Permintaan Diterima",
+  "Permintaan Diproses",
+  "Pengaktifan Tagihan",
+  "Tagihan Siap Dibayarkan",
+  // Add more steps here
+]
+
+const DELAY_MS: number = 1500
+const INITIAL_STEP: number = 0
+
 function App() {
-  const [count, setCount] = useState(0)
+  const [activeStep, setActiveStep] = useState<number>(INITIAL_STEP)
+
+  const incrementStep = () => {
+    setActiveStep(prevStep => {
+      if (prevStep === STEPS.length) return 0
+      return prevStep + 1
+    })
+  }
+
+  useEffect(() => {
+    setInterval(() => incrementStep(), DELAY_MS)
+  }, [])
 
   return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <main id='loader-stepper'>
+      <h1 className='title'>Mohon Menunggu</h1>
+      <div className="steps">
+        {STEPS.map((step, index) => (
+          <div
+            key={index}
+            className={`step`}
+          >
+            <div className={`step-indicator ${index <= activeStep ? 'active' : ''}`} />
+            <div className="step-text">{step}</div>
+            <div className={`
+                step-status ${index === activeStep ? 'pending' :
+                index > activeStep ? 'incomplete' :
+                  index < activeStep ? 'complete' : ''}
+            `}>
+              <img src={IconPending} alt="pending" />
+              <img src={IconIncomplete} alt="incomplete" />
+              <img src={IconComplete} alt="complete" />
+            </div>
+          </div>
+        ))}
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    </main>
   )
 }
 
